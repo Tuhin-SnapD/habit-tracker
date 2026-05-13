@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState, type CSSProperties } from 'react';
 import { useHabitStore } from '../store/useHabitStore';
 import { useUIStore } from '../store/useUIStore';
 import { DateNav } from '../components/DateNav';
@@ -11,6 +11,20 @@ export function DailySection() {
   const habits = useHabitStore((s) => s.habits.filter((h) => !h.archived));
   const completions = useHabitStore((s) => s.completions);
   const selectedDate = useUIStore((s) => s.selectedDate);
+
+  const [asideEl, setAsideEl] = useState<HTMLDivElement | null>(null);
+  const [asideH, setAsideH] = useState<number | undefined>(undefined);
+
+  useEffect(() => {
+    if (!asideEl) return;
+    const ro = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        setAsideH(entry.contentRect.height);
+      }
+    });
+    ro.observe(asideEl);
+    return () => ro.disconnect();
+  }, [asideEl]);
 
   const { doneCount, rate, bestStreak } = useMemo(() => {
     const set = new Set(
@@ -37,6 +51,10 @@ export function DailySection() {
     );
   }
 
+  const leftStyle: CSSProperties | undefined = asideH
+    ? ({ '--aside-h': `${asideH}px` } as CSSProperties)
+    : undefined;
+
   return (
     <section id="today" className="scroll-mt-28">
       <SectionHeader
@@ -45,12 +63,15 @@ export function DailySection() {
         meta={<DateNav step="day" />}
       />
 
-      <div className="grid lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
+      <div className="grid lg:grid-cols-3 gap-6 lg:items-start">
+        <div
+          className="lg:col-span-2 min-h-0 lg:h-[var(--aside-h)]"
+          style={leftStyle}
+        >
           <HabitList />
         </div>
 
-        <aside className="space-y-4">
+        <div ref={setAsideEl} className="space-y-4">
           <div className="card p-6 flex flex-col items-center text-center">
             <ProgressRing percent={rate} size={140} label="Progress" />
             <div className="display text-2xl mt-4">
@@ -70,7 +91,7 @@ export function DailySection() {
               The habit you've kept going the longest right now.
             </p>
           </div>
-        </aside>
+        </div>
       </div>
     </section>
   );

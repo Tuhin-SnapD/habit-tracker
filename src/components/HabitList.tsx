@@ -79,8 +79,8 @@ export function HabitList() {
   }
 
   return (
-    <section className="space-y-4">
-      <div className="flex items-center justify-between">
+    <section className="flex flex-col h-full min-h-0">
+      <div className="flex items-center justify-between mb-4 shrink-0">
         <h2 className="display text-2xl">
           Your habits{' '}
           <span className="text-muted text-sm font-sans font-normal">
@@ -95,7 +95,7 @@ export function HabitList() {
         </button>
       </div>
 
-      <ul className="space-y-2">
+      <ul className="space-y-2 flex-1 min-h-0 lg:overflow-y-auto lg:pr-2 scroll-area">
         {habits.map((h) => (
           <HabitRow
             key={h.id}

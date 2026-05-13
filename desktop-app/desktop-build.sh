@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -e
 cd "$(dirname "$0")"
+[ -f package.json ] || cd ..
 
 echo "=== LevelUp Desktop (production build) ==="
 
@@ -8,9 +9,14 @@ if ! command -v node >/dev/null 2>&1; then
     echo "Node.js missing. Run ./start.sh first."
     exit 1
 fi
+
 if ! command -v cargo >/dev/null 2>&1; then
-    echo "Rust missing. Run ./desktop.sh once to install it."
-    exit 1
+    if [ -x "$HOME/.cargo/bin/cargo" ]; then
+        export PATH="$HOME/.cargo/bin:$PATH"
+    else
+        echo "Rust missing. Run ./desktop.sh once to install it."
+        exit 1
+    fi
 fi
 
 if [ ! -f "src-tauri/icons/icon.icns" ]; then
