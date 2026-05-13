@@ -1,3 +1,5 @@
+import { useId } from 'react';
+
 type Props = {
   percent: number;
   size?: number;
@@ -6,15 +8,20 @@ type Props = {
 };
 
 export function ProgressRing({ percent, size = 160, stroke = 14, label }: Props) {
+  const gradientId = useId();
   const radius = (size - stroke) / 2;
   const circumference = 2 * Math.PI * radius;
   const clamped = Math.max(0, Math.min(1, percent));
   const offset = circumference * (1 - clamped);
-  const gradientId = 'ring-gradient';
+  const displayPercent = Math.round(clamped * 100);
 
   return (
-    <div className="flex flex-col items-center">
-      <svg width={size} height={size}>
+    <div
+      className="flex flex-col items-center"
+      role="img"
+      aria-label={`${label ?? 'Progress'}: ${displayPercent}%`}
+    >
+      <svg width={size} height={size} aria-hidden="true">
         <defs>
           <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" stopColor="#6B5BD1" />
@@ -40,7 +47,7 @@ export function ProgressRing({ percent, size = 160, stroke = 14, label }: Props)
           strokeDashoffset={offset}
           strokeLinecap="round"
           transform={`rotate(-90 ${size / 2} ${size / 2})`}
-          style={{ transition: 'stroke-dashoffset 0.5s ease' }}
+          style={{ transition: 'stroke-dashoffset 0.6s cubic-bezier(0.22, 1, 0.36, 1)' }}
         />
         <text
           x="50%"
@@ -52,7 +59,7 @@ export function ProgressRing({ percent, size = 160, stroke = 14, label }: Props)
           fontWeight={600}
           fill="currentColor"
         >
-          {Math.round(clamped * 100)}%
+          {displayPercent}%
         </text>
       </svg>
       {label && (

@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, memo } from 'react';
 import { useHabitStore } from '../store/useHabitStore';
 import { useUIStore } from '../store/useUIStore';
 import { SectionHeader } from '../components/SectionHeader';
@@ -11,6 +11,7 @@ import {
   shiftDays,
   getForwardDate,
 } from '../lib/dates';
+import { buildCompletionSet } from '../lib/streaks';
 import { scrollToSection } from '../hooks/useActiveSection';
 import { format } from 'date-fns';
 
@@ -30,7 +31,7 @@ export function WeekSection() {
   const labels = useMemo(() => weekdayLabels(weekStartsOn), [weekStartsOn]);
   const today = toDateKey();
   const completionSet = useMemo(
-    () => new Set(completions.map((c) => `${c.habitId}|${c.date}`)),
+    () => buildCompletionSet(completions),
     [completions]
   );
 
@@ -57,7 +58,7 @@ export function WeekSection() {
           <div className="card flex items-center gap-1 p-1">
             <button
               onClick={() => setAnchor(shiftDays(anchor, -7))}
-              className="w-8 h-8 rounded-full hover:bg-muted/10 text-lg"
+              className="w-9 h-9 rounded-full hover:bg-muted/10 text-lg transition flex items-center justify-center"
               aria-label="Previous week"
             >
               ‹
@@ -69,7 +70,7 @@ export function WeekSection() {
             <button
               onClick={() => forwardWeek && setAnchor(forwardWeek)}
               disabled={!forwardWeek}
-              className="w-8 h-8 rounded-full hover:bg-muted/10 text-lg disabled:opacity-30 disabled:cursor-not-allowed"
+              className="w-9 h-9 rounded-full hover:bg-muted/10 text-lg transition flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed"
               aria-label="Next week"
               title={forwardWeek ? undefined : "Can't navigate past today"}
             >
@@ -165,7 +166,7 @@ type WeekRowProps = {
   onToggle: (date: string) => void;
 };
 
-function WeekRow({
+const WeekRow = memo(function WeekRow({
   habitId,
   name,
   icon,
@@ -181,7 +182,7 @@ function WeekRow({
         className="flex items-center gap-2 pr-3 py-2 truncate"
         style={{ borderLeft: `4px solid ${color}`, paddingLeft: 10 }}
       >
-        <span className="text-lg">{icon}</span>
+        <span className="text-lg" aria-hidden="true">{icon}</span>
         <span className="text-sm truncate">{name}</span>
       </div>
       {days.map((d) => {
@@ -194,15 +195,16 @@ function WeekRow({
             onClick={() => !future && onToggle(d)}
             disabled={future}
             aria-label={
-              future ? `${name} on ${d} (future)` : `${name} on ${d}`
+              future ? `${name} on ${d} (future)` : `${name} on ${d}${done ? ' (done)' : ''}`
             }
+            aria-pressed={done}
             title={future ? "Can't mark a future date" : undefined}
-            className={`h-10 w-10 rounded-xl text-sm flex items-center justify-center transition border ${
+            className={`h-10 w-10 rounded-xl text-sm flex items-center justify-center transition-all duration-200 border ${
               done
                 ? 'text-white border-transparent shadow-card'
                 : future
                 ? 'border-dashed border-muted/15 bg-transparent text-muted/40 cursor-not-allowed'
-                : `${isToday ? 'border-accent-purple/40 bg-white/50' : 'border-muted/15 bg-white/40'} hover:border-accent-purple/60`
+                : `${isToday ? 'border-accent-purple/40 bg-white/50 dark:bg-white/5' : 'border-muted/15 bg-white/40 dark:bg-white/5'} hover:border-accent-purple/60`
             }`}
             style={done ? { backgroundColor: color } : undefined}
           >
@@ -212,4 +214,4 @@ function WeekRow({
       })}
     </>
   );
-}
+});

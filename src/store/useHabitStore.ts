@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { nanoid } from 'nanoid';
-import type { Habit, Completion, Settings } from '../lib/types';
+import type { Habit, Completion, Settings, EmailJSConfig } from '../lib/types';
 import { STARTER_HABITS } from '../lib/starterHabits';
 
 export const MAX_HABITS = 99;
@@ -15,11 +15,13 @@ type HabitState = {
   addHabit: (h: Omit<Habit, 'id' | 'createdAt' | 'archived'>) => boolean;
   editHabit: (id: string, patch: Partial<Habit>) => void;
   archiveHabit: (id: string) => void;
+  unarchiveHabit: (id: string) => void;
   deleteHabit: (id: string) => void;
   toggleCompletion: (habitId: string, date: string) => void;
   seedStarterHabits: () => void;
   setTheme: (t: Theme) => void;
   setBackupEmail: (email: string) => void;
+  setEmailJSConfig: (config: EmailJSConfig) => void;
   completeOnboarding: (data: {
     name: string;
     email: string;
@@ -66,6 +68,13 @@ export const useHabitStore = create<HabitState>()(
           ),
         })),
 
+      unarchiveHabit: (id) =>
+        set((s) => ({
+          habits: s.habits.map((h) =>
+            h.id === id ? { ...h, archived: false } : h
+          ),
+        })),
+
       deleteHabit: (id) =>
         set((s) => ({
           habits: s.habits.filter((h) => h.id !== id),
@@ -97,6 +106,9 @@ export const useHabitStore = create<HabitState>()(
 
       setBackupEmail: (backupEmail) =>
         set((s) => ({ settings: { ...s.settings, backupEmail } })),
+
+      setEmailJSConfig: (emailjs) =>
+        set((s) => ({ settings: { ...s.settings, emailjs } })),
 
       completeOnboarding: ({ name, email, reportTime }) =>
         set((s) => ({

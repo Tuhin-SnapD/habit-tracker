@@ -14,6 +14,12 @@ export type Completion = {
   date: string;
 };
 
+export type EmailJSConfig = {
+  serviceId: string;
+  templateId: string;
+  publicKey: string;
+};
+
 export type Settings = {
   theme: 'light' | 'dark';
   weekStartsOn: 0 | 1;
@@ -22,4 +28,5 @@ export type Settings = {
   backupEmail?: string;
   reportTime?: string;          // "HH:MM" 24h
   lastReportSentDate?: string;  // YYYY-MM-DD
+  emailjs?: EmailJSConfig;
 };

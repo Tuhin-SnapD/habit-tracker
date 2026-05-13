@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useHabitStore } from './store/useHabitStore';
 import { SectionNav } from './components/SectionNav';
 import { DailySection } from './pages/DailyView';
@@ -10,6 +10,8 @@ import { HabitForm } from './components/HabitForm';
 import { SplashScreen } from './components/SplashScreen';
 import { Onboarding } from './components/Onboarding';
 import { DailyReportBanner } from './components/DailyReportBanner';
+import { ToastContainer } from './components/Toast';
+import { ConfirmDialog } from './components/ConfirmDialog';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { toDateKey } from './lib/dates';
 import { format } from 'date-fns';
@@ -18,10 +20,17 @@ export default function App() {
   const theme = useHabitStore((s) => s.settings.theme);
   const onboarded = useHabitStore((s) => s.settings.onboarded ?? false);
   const userName = useHabitStore((s) => s.settings.name);
-  const today = format(new Date(), 'EEEE, MMMM d');
+
+  // Reactive today — updates every 60s so midnight rollover works
+  const [today, setToday] = useState(() => format(new Date(), 'EEEE, MMMM d'));
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      setToday(format(new Date(), 'EEEE, MMMM d'));
+    }, 60_000);
+    return () => window.clearInterval(id);
+  }, []);
 
   const [splashDone, setSplashDone] = useState(false);
-  const [onboardingDone, setOnboardingDone] = useState(onboarded);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [newHabitOpen, setNewHabitOpen] = useState(false);
 
@@ -29,22 +38,43 @@ export default function App() {
     document.documentElement.classList.toggle('dark', theme === 'dark');
   }, [theme]);
 
+  // Close modals on Escape
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        if (newHabitOpen) {
+          setNewHabitOpen(false);
+          e.stopPropagation();
+        } else if (settingsOpen) {
+          setSettingsOpen(false);
+          e.stopPropagation();
+        }
+      }
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [settingsOpen, newHabitOpen]);
+
+  const handleNewHabit = useCallback(() => setNewHabitOpen(true), []);
+  const handleOpenSettings = useCallback(() => setSettingsOpen(true), []);
+
   useKeyboardShortcuts({
-    onNewHabit: () => setNewHabitOpen(true),
-    onOpenSettings: () => setSettingsOpen(true),
+    onNewHabit: handleNewHabit,
+    onOpenSettings: handleOpenSettings,
   });
 
   if (!splashDone) {
     return <SplashScreen onDone={() => setSplashDone(true)} />;
   }
 
-  if (!onboardingDone) {
-    return <Onboarding onDone={() => setOnboardingDone(true)} />;
+  // Derive onboarding state directly from store so resets/imports are reflected
+  if (!onboarded) {
+    return <Onboarding onDone={() => {}} />;
   }
 
   return (
     <div className="min-h-screen relative animate-appIn">
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
         <div className="blob bg-accent-cream -top-32 -left-32 w-96 h-96" />
         <div className="blob bg-accent-lilac top-1/3 -right-32 w-[28rem] h-[28rem]" />
         <div className="blob bg-accent-blush top-2/3 -left-32 w-[26rem] h-[26rem] opacity-40" />
@@ -63,8 +93,8 @@ export default function App() {
           </p>
         </div>
         <button
-          onClick={() => setSettingsOpen(true)}
-          className="card absolute top-6 right-6 w-10 h-10 flex items-center justify-center text-muted hover:text-ink transition"
+          onClick={handleOpenSettings}
+          className="card absolute top-6 right-6 w-10 h-10 flex items-center justify-center text-muted hover:text-ink dark:hover:text-canvas transition"
           aria-label="Settings"
           title="Settings (press S)"
         >
@@ -76,7 +106,7 @@ export default function App() {
         <SectionNav />
       </div>
 
-      <main className="relative max-w-5xl mx-auto px-4 md:px-6 pb-20">
+      <main id="main-content" className="relative max-w-5xl mx-auto px-4 md:px-6 pb-20">
         <div className="max-w-3xl mx-auto mb-6">
           <DailyReportBanner />
         </div>
@@ -101,6 +131,9 @@ export default function App() {
           onClose={() => setNewHabitOpen(false)}
         />
       )}
+
+      <ToastContainer />
+      <ConfirmDialog />
     </div>
   );
 }

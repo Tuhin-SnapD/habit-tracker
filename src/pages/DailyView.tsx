@@ -5,7 +5,7 @@ import { DateNav } from '../components/DateNav';
 import { HabitList } from '../components/HabitList';
 import { SectionHeader } from '../components/SectionHeader';
 import { ProgressRing } from '../components/charts/ProgressRing';
-import { getCurrentStreak } from '../lib/streaks';
+import { buildCompletionMap, getCurrentStreak } from '../lib/streaks';
 
 export function DailySection() {
   const habits = useHabitStore((s) => s.habits.filter((h) => !h.archived));
@@ -26,22 +26,27 @@ export function DailySection() {
     return () => ro.disconnect();
   }, [asideEl]);
 
+  const completionMap = useMemo(
+    () => buildCompletionMap(completions),
+    [completions]
+  );
+
   const { doneCount, rate, bestStreak } = useMemo(() => {
-    const set = new Set(
+    const dateSet = new Set(
       completions
         .filter((c) => c.date === selectedDate)
         .map((c) => c.habitId)
     );
-    const dc = habits.filter((h) => set.has(h.id)).length;
+    const dc = habits.filter((h) => dateSet.has(h.id)).length;
     const streaks = habits.map((h) =>
-      getCurrentStreak(h.id, completions, selectedDate)
+      getCurrentStreak(h.id, completionMap.get(h.id) ?? new Set(), selectedDate)
     );
     return {
       doneCount: dc,
       rate: habits.length ? dc / habits.length : 0,
       bestStreak: streaks.length ? Math.max(...streaks) : 0,
     };
-  }, [habits, completions, selectedDate]);
+  }, [habits, completions, selectedDate, completionMap]);
 
   if (habits.length === 0) {
     return (

@@ -30,15 +30,18 @@ export function MonthSection() {
   const today = toDateKey();
   const totalHabits = habits.length;
 
+  // Optimized: only scan completions relevant to the visible date range
   const dayCounts = useMemo(() => {
+    const dateRange = new Set(cells.map((c) => c.date));
+    const habitIds = new Set(habits.map((h) => h.id));
     const counts: Record<string, number> = {};
     for (const c of completions) {
-      if (habits.some((h) => h.id === c.habitId)) {
+      if (dateRange.has(c.date) && habitIds.has(c.habitId)) {
         counts[c.date] = (counts[c.date] ?? 0) + 1;
       }
     }
     return counts;
-  }, [completions, habits]);
+  }, [completions, habits, cells]);
 
   const inMonthCells = cells.filter((c) => c.inMonth);
   const inMonthPast = inMonthCells.filter((c) => !isFutureDate(c.date));
@@ -59,7 +62,7 @@ export function MonthSection() {
           <div className="card flex items-center gap-1 p-1">
             <button
               onClick={() => setAnchor(shiftMonths(anchor, -1))}
-              className="w-8 h-8 rounded-full hover:bg-muted/10 text-lg"
+              className="w-9 h-9 rounded-full hover:bg-muted/10 text-lg transition flex items-center justify-center"
               aria-label="Previous month"
             >
               ‹
@@ -70,7 +73,7 @@ export function MonthSection() {
             <button
               onClick={() => forwardMonth && setAnchor(forwardMonth)}
               disabled={!forwardMonth}
-              className="w-8 h-8 rounded-full hover:bg-muted/10 text-lg disabled:opacity-30 disabled:cursor-not-allowed"
+              className="w-9 h-9 rounded-full hover:bg-muted/10 text-lg transition flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed"
               aria-label="Next month"
               title={forwardMonth ? undefined : "Can't navigate past today"}
             >
@@ -119,7 +122,12 @@ export function MonthSection() {
                     scrollToSection('today');
                   }}
                   disabled={future}
-                  className={`aspect-square rounded-xl p-2 flex flex-col items-start justify-between text-left transition ${
+                  aria-label={
+                    future
+                      ? `${date} — future date`
+                      : `${date}: ${count}/${totalHabits} done`
+                  }
+                  className={`aspect-square rounded-xl p-2 flex flex-col items-start justify-between text-left transition-all duration-200 ${
                     !inMonth ? 'opacity-30' : ''
                   } ${
                     future

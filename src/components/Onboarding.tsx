@@ -15,6 +15,7 @@ export function Onboarding({ onDone }: Props) {
 
   const submit = (e: FormEvent) => {
     e.preventDefault();
+    setError(null);
     if (!name.trim()) return setError('Please tell us your name.');
     if (!EMAIL_RE.test(email)) return setError('That email looks off.');
     if (!/^\d{2}:\d{2}$/.test(time)) return setError('Pick a time.');
@@ -37,12 +38,15 @@ export function Onboarding({ onDone }: Props) {
         onSubmit={submit}
         className="card relative w-full max-w-md mx-4 p-7 md:p-8 space-y-5 shadow-soft animate-fadeUp"
         style={{ animationDelay: '0.2s' }}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="onboarding-title"
       >
         <div className="text-center space-y-2">
           <p className="text-[11px] uppercase tracking-[0.3em] text-accent-purple font-medium">
             Let's set the stage
           </p>
-          <h2 className="display text-3xl md:text-4xl leading-tight">
+          <h2 id="onboarding-title" className="display text-3xl md:text-4xl leading-tight">
             Welcome to{' '}
             <span className="italic text-accent-purple">LevelUp.</span>
           </h2>
@@ -58,7 +62,7 @@ export function Onboarding({ onDone }: Props) {
             onChange={(e) => setName(e.target.value)}
             autoFocus
             placeholder="e.g. Tuhin"
-            className="mt-1 w-full px-3 py-2.5 rounded-lg border border-muted/25 bg-white/80 focus:outline-none focus:border-accent-purple focus:ring-2 focus:ring-accent-purple/20"
+            className="mt-1 w-full px-3 py-2.5 rounded-lg border border-muted/25 bg-white/80 focus:outline-none focus:border-accent-purple focus:ring-2 focus:ring-accent-purple/20 transition"
           />
         </label>
 
@@ -69,7 +73,7 @@ export function Onboarding({ onDone }: Props) {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="you@example.com"
-            className="mt-1 w-full px-3 py-2.5 rounded-lg border border-muted/25 bg-white/80 focus:outline-none focus:border-accent-purple focus:ring-2 focus:ring-accent-purple/20"
+            className="mt-1 w-full px-3 py-2.5 rounded-lg border border-muted/25 bg-white/80 focus:outline-none focus:border-accent-purple focus:ring-2 focus:ring-accent-purple/20 transition"
           />
         </label>
 
@@ -81,7 +85,7 @@ export function Onboarding({ onDone }: Props) {
             type="time"
             value={time}
             onChange={(e) => setTime(e.target.value)}
-            className="mt-1 w-full px-3 py-2.5 rounded-lg border border-muted/25 bg-white/80 focus:outline-none focus:border-accent-purple focus:ring-2 focus:ring-accent-purple/20"
+            className="mt-1 w-full px-3 py-2.5 rounded-lg border border-muted/25 bg-white/80 focus:outline-none focus:border-accent-purple focus:ring-2 focus:ring-accent-purple/20 transition"
           />
           <span className="block text-[11px] text-muted mt-1 leading-relaxed">
             At this time, LevelUp will surface a one-tap "send today's report"
@@ -90,11 +94,15 @@ export function Onboarding({ onDone }: Props) {
           </span>
         </label>
 
-        {error && <p className="text-sm text-red-700 text-center">{error}</p>}
+        {error && (
+          <p className="text-sm text-red-600 dark:text-red-400 text-center bg-red-50 dark:bg-red-900/20 rounded-lg px-3 py-2" role="alert">
+            {error}
+          </p>
+        )}
 
         <button
           type="submit"
-          className="w-full px-6 py-3 rounded-full bg-ink text-canvas font-medium hover:opacity-90 shadow-card transition"
+          className="w-full px-6 py-3 rounded-full bg-ink text-canvas font-medium hover:opacity-90 shadow-card transition active:scale-[0.98]"
         >
           Begin
         </button>

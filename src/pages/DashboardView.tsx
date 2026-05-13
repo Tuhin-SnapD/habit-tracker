@@ -1,10 +1,8 @@
 import { useMemo, useState } from 'react';
 import { useHabitStore } from '../store/useHabitStore';
 import {
-  getCurrentStreak,
-  getLongestStreak,
-  getCompletionRate,
-  getCompletionsInWindow,
+  buildCompletionMap,
+  batchComputeStats,
 } from '../lib/streaks';
 import { toDateKey } from '../lib/dates';
 import { SectionHeader } from '../components/SectionHeader';
@@ -22,40 +20,58 @@ export function InsightsSection() {
   const [windowDays, setWindowDays] = useState<Window>(30);
   const today = toDateKey();
 
-  const stats = useMemo(() => {
-    const streaks = habits.map((h) => getCurrentStreak(h.id, completions, today));
-    const longestStreaks = habits.map((h) => getLongestStreak(h.id, completions));
-    const bestCurrent = streaks.length ? Math.max(...streaks) : 0;
-    const bestEver = longestStreaks.length ? Math.max(...longestStreaks) : 0;
-    const totalCompletions = habits.reduce(
-      (sum, h) => sum + getCompletionsInWindow(h.id, completions, windowDays, today),
-      0
-    );
+  // Single completion map shared across all computations
+  const completionMap = useMemo(
+    () => buildCompletionMap(completions),
+    [completions]
+  );
+
+  // Batch compute all stats in a single pass
+  const allStats = useMemo(
+    () =>
+      batchComputeStats(
+        habits.map((h) => h.id),
+        completionMap,
+        windowDays,
+        today
+      ),
+    [habits, completionMap, windowDays, today]
+  );
+
+  const summaryStats = useMemo(() => {
+    let bestCurrent = 0;
+    let bestEver = 0;
+    let totalCompletions = 0;
+    for (const stat of allStats.values()) {
+      if (stat.currentStreak > bestCurrent) bestCurrent = stat.currentStreak;
+      if (stat.longestStreak > bestEver) bestEver = stat.longestStreak;
+      totalCompletions += stat.completionsInWindow;
+    }
     return { bestCurrent, bestEver, totalCompletions };
-  }, [habits, completions, today, windowDays]);
+  }, [allStats]);
 
   const barData = useMemo(
     () =>
       habits
         .map((h) => ({
           name: h.name,
-          value: getCompletionsInWindow(h.id, completions, windowDays, today),
+          value: allStats.get(h.id)?.completionsInWindow ?? 0,
           color: h.color,
         }))
         .sort((a, b) => b.value - a.value),
-    [habits, completions, windowDays, today]
+    [habits, allStats]
   );
 
   const categoryData = useMemo(() => {
     const map = new Map<string, number>();
     for (const h of habits) {
-      const v = getCompletionsInWindow(h.id, completions, windowDays, today);
+      const v = allStats.get(h.id)?.completionsInWindow ?? 0;
       map.set(h.category, (map.get(h.category) ?? 0) + v);
     }
     return Array.from(map.entries())
       .map(([category, value]) => ({ category, value }))
       .sort((a, b) => b.value - a.value);
-  }, [habits, completions, windowDays, today]);
+  }, [habits, allStats]);
 
   const ranked = useMemo(() => {
     return habits
@@ -63,10 +79,10 @@ export function InsightsSection() {
         name: h.name,
         icon: h.icon,
         color: h.color,
-        rate: getCompletionRate(h.id, completions, windowDays, today),
+        rate: allStats.get(h.id)?.completionRate ?? 0,
       }))
       .sort((a, b) => b.rate - a.rate);
-  }, [habits, completions, windowDays, today]);
+  }, [habits, allStats]);
 
   const top = ranked.slice(0, 3);
   const bottom = ranked.length > 3 ? ranked.slice(-3).reverse() : [];
@@ -82,10 +98,10 @@ export function InsightsSection() {
               <button
                 key={w}
                 onClick={() => setWindowDays(w)}
-                className={`px-3 py-1 rounded-full text-xs font-medium transition ${
+                className={`px-3 py-1.5 rounded-full text-xs font-medium transition ${
                   windowDays === w
-                    ? 'bg-ink text-canvas shadow-card'
-                    : 'text-muted hover:text-ink'
+                    ? 'bg-ink text-canvas shadow-card dark:bg-accent-purple'
+                    : 'text-muted hover:text-ink dark:hover:text-canvas'
                 }`}
               >
                 Last {w}d
@@ -109,17 +125,17 @@ export function InsightsSection() {
             />
             <StatTile
               label="Best current streak"
-              value={`${stats.bestCurrent}d`}
+              value={`${summaryStats.bestCurrent}d`}
               accent="#F4C7A1"
             />
             <StatTile
               label="Longest ever"
-              value={`${stats.bestEver}d`}
+              value={`${summaryStats.bestEver}d`}
               accent="#C9B6E4"
             />
             <StatTile
               label={`Last ${windowDays}d completions`}
-              value={stats.totalCompletions}
+              value={summaryStats.totalCompletions}
               accent="#6B5BD1"
             />
           </div>

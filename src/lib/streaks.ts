@@ -1,22 +1,44 @@
 import type { Completion } from './types';
 import { shiftDays, toDateKey } from './dates';
 
-const completionSet = (habitId: string, completions: Completion[]): Set<string> =>
-  new Set(completions.filter((c) => c.habitId === habitId).map((c) => c.date));
+/**
+ * Build a lookup map from completions: habitId → Set<dateKey>.
+ * Pass this into streak functions to avoid O(N) set rebuilds per call.
+ */
+export function buildCompletionMap(
+  completions: Completion[]
+): Map<string, Set<string>> {
+  const map = new Map<string, Set<string>>();
+  for (const c of completions) {
+    let set = map.get(c.habitId);
+    if (!set) {
+      set = new Set();
+      map.set(c.habitId, set);
+    }
+    set.add(c.date);
+  }
+  return map;
+}
+
+/**
+ * Build a flat Set of "habitId|date" keys for O(1) completion checks.
+ */
+export function buildCompletionSet(completions: Completion[]): Set<string> {
+  return new Set(completions.map((c) => `${c.habitId}|${c.date}`));
+}
 
 export function getCurrentStreak(
-  habitId: string,
-  completions: Completion[],
+  _habitId: string,
+  dateSet: Set<string>,
   today: string = toDateKey()
 ): number {
-  const set = completionSet(habitId, completions);
   let cursor = today;
-  if (!set.has(cursor)) {
+  if (!dateSet.has(cursor)) {
     cursor = shiftDays(cursor, -1);
-    if (!set.has(cursor)) return 0;
+    if (!dateSet.has(cursor)) return 0;
   }
   let streak = 0;
-  while (set.has(cursor)) {
+  while (dateSet.has(cursor)) {
     streak++;
     cursor = shiftDays(cursor, -1);
   }
@@ -24,13 +46,10 @@ export function getCurrentStreak(
 }
 
 export function getLongestStreak(
-  habitId: string,
-  completions: Completion[]
+  _habitId: string,
+  dateSet: Set<string>
 ): number {
-  const dates = completions
-    .filter((c) => c.habitId === habitId)
-    .map((c) => c.date)
-    .sort();
+  const dates = Array.from(dateSet).sort();
   if (dates.length === 0) return 0;
   let longest = 1;
   let current = 1;
@@ -46,30 +65,55 @@ export function getLongestStreak(
 }
 
 export function getCompletionRate(
-  habitId: string,
-  completions: Completion[],
+  _habitId: string,
+  dateSet: Set<string>,
   windowDays: number,
   today: string = toDateKey()
 ): number {
   if (windowDays <= 0) return 0;
-  const set = completionSet(habitId, completions);
   let done = 0;
   for (let i = 0; i < windowDays; i++) {
-    if (set.has(shiftDays(today, -i))) done++;
+    if (dateSet.has(shiftDays(today, -i))) done++;
   }
   return done / windowDays;
 }
 
 export function getCompletionsInWindow(
-  habitId: string,
-  completions: Completion[],
+  _habitId: string,
+  dateSet: Set<string>,
   windowDays: number,
   today: string = toDateKey()
 ): number {
-  const set = completionSet(habitId, completions);
   let count = 0;
   for (let i = 0; i < windowDays; i++) {
-    if (set.has(shiftDays(today, -i))) count++;
+    if (dateSet.has(shiftDays(today, -i))) count++;
   }
   return count;
+}
+
+/** Batch-compute all stats for multiple habits in a single pass. */
+export type HabitStats = {
+  currentStreak: number;
+  longestStreak: number;
+  completionRate: number;
+  completionsInWindow: number;
+};
+
+export function batchComputeStats(
+  habitIds: string[],
+  completionMap: Map<string, Set<string>>,
+  windowDays: number,
+  today: string = toDateKey()
+): Map<string, HabitStats> {
+  const result = new Map<string, HabitStats>();
+  for (const id of habitIds) {
+    const dateSet = completionMap.get(id) ?? new Set();
+    result.set(id, {
+      currentStreak: getCurrentStreak(id, dateSet, today),
+      longestStreak: getLongestStreak(id, dateSet),
+      completionRate: getCompletionRate(id, dateSet, windowDays, today),
+      completionsInWindow: getCompletionsInWindow(id, dateSet, windowDays, today),
+    });
+  }
+  return result;
 }

@@ -20,6 +20,7 @@ export function DateNav({ step }: Props) {
 
   const forwardTarget = getForwardDate(step, selectedDate, weekStartsOn);
   const canForward = forwardTarget !== null;
+  const isToday = selectedDate === toDateKey();
 
   const moveBack = () => setSelectedDate(getBackwardDate(step, selectedDate));
   const moveForward = () => {
@@ -30,8 +31,8 @@ export function DateNav({ step }: Props) {
     <div className="card flex items-center justify-center gap-1 p-1 w-fit mx-auto">
       <button
         onClick={moveBack}
-        className="w-9 h-9 rounded-full hover:bg-muted/10 text-lg"
-        aria-label="Previous"
+        className="w-10 h-10 rounded-full hover:bg-muted/10 text-lg transition flex items-center justify-center"
+        aria-label={`Previous ${step}`}
       >
         ‹
       </button>
@@ -45,16 +46,21 @@ export function DateNav({ step }: Props) {
       <button
         onClick={moveForward}
         disabled={!canForward}
-        aria-label="Next"
+        aria-label={`Next ${step}`}
         title={canForward ? undefined : "Can't navigate past today"}
-        className="w-9 h-9 rounded-full hover:bg-muted/10 text-lg disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent"
+        className="w-10 h-10 rounded-full hover:bg-muted/10 text-lg transition flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent"
       >
         ›
       </button>
       <button
         onClick={goToday}
-        disabled={selectedDate === toDateKey()}
-        className="ml-1 px-3 py-1 rounded-full text-sm hover:bg-muted/10 disabled:opacity-40"
+        disabled={isToday}
+        className={`ml-1 px-3 py-1.5 rounded-full text-sm transition ${
+          isToday
+            ? 'opacity-40 cursor-default'
+            : 'hover:bg-muted/10 text-accent-purple font-medium'
+        }`}
+        aria-label="Jump to today"
       >
         Today
       </button>

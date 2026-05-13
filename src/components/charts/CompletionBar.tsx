@@ -30,26 +30,29 @@ export function CompletionBar({ data, max }: Props) {
         <XAxis
           type="number"
           domain={[0, max]}
-          stroke="#8B847C"
+          stroke="currentColor"
           fontSize={11}
           allowDecimals={false}
+          opacity={0.5}
         />
         <YAxis
           type="category"
           dataKey="name"
-          stroke="#8B847C"
+          stroke="currentColor"
           fontSize={12}
           width={120}
+          opacity={0.5}
         />
         <Tooltip
           cursor={{ fill: 'rgba(139,132,124,0.08)' }}
           contentStyle={{
-            backgroundColor: '#FBF8F4',
-            border: '1px solid rgba(139,132,124,0.25)',
+            backgroundColor: 'var(--tooltip-bg, #FBF8F4)',
+            border: '1px solid var(--tooltip-border, rgba(139,132,124,0.25))',
             borderRadius: 8,
+            color: 'var(--tooltip-color, inherit)',
           }}
         />
-        <Bar dataKey="value" radius={[0, 6, 6, 0]}>
+        <Bar dataKey="value" radius={[0, 6, 6, 0]} animationDuration={600}>
           {data.map((d, i) => (
             <Cell key={i} fill={d.color} />
           ))}

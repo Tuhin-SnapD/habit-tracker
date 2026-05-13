@@ -1,7 +1,7 @@
 import { format } from 'date-fns';
 import type { Habit, Completion } from './types';
 import { toDateKey, fromKey } from './dates';
-import { getCurrentStreak, getLongestStreak } from './streaks';
+import { buildCompletionMap, getCurrentStreak, getLongestStreak } from './streaks';
 
 export function buildDailyReport(
   name: string | undefined,
@@ -16,11 +16,13 @@ export function buildDailyReport(
   const done = active.filter((h) => completedSet.has(h.id));
   const pending = active.filter((h) => !completedSet.has(h.id));
 
+  const completionMap = buildCompletionMap(completions);
+
   const bestStreak = active.length
-    ? Math.max(...active.map((h) => getCurrentStreak(h.id, completions, date)))
+    ? Math.max(...active.map((h) => getCurrentStreak(h.id, completionMap.get(h.id) ?? new Set(), date)))
     : 0;
   const longestEver = active.length
-    ? Math.max(...active.map((h) => getLongestStreak(h.id, completions)))
+    ? Math.max(...active.map((h) => getLongestStreak(h.id, completionMap.get(h.id) ?? new Set())))
     : 0;
 
   const friendlyDate = format(fromKey(date), 'EEEE, MMMM d');

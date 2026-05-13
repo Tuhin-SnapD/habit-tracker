@@ -33,15 +33,26 @@ export function SplashScreen({ onDone }: Props) {
     };
   }, [onDone]);
 
+  // Click anywhere to skip
+  const handleSkip = () => {
+    if (!leaving) {
+      setLeaving(true);
+      setTimeout(onDone, 300);
+    }
+  };
+
   return (
     <div
-      className={`fixed inset-0 z-[100] flex items-center justify-center overflow-hidden ${
+      className={`fixed inset-0 z-[100] flex items-center justify-center overflow-hidden cursor-pointer select-none ${
         leaving ? 'animate-splashOut' : 'animate-splashIn'
       }`}
       style={{
         background:
           'linear-gradient(180deg, #FDE7DB 0%, #FBF3EC 22%, #F6ECEF 55%, #EFE4F5 100%)',
       }}
+      onClick={handleSkip}
+      role="status"
+      aria-label="Loading LevelUp"
     >
       <div
         className="blob bg-accent-cream -top-40 -left-40 w-[28rem] h-[28rem] animate-blobIn"
@@ -77,7 +88,13 @@ export function SplashScreen({ onDone }: Props) {
           className="display italic font-medium text-2xl md:text-4xl text-ink/80 leading-snug whitespace-pre-line animate-fadeUp"
           style={{ animationDelay: '0.75s', maxWidth: '40rem', margin: '0 auto' }}
         >
-          {`“${quote}”`}
+          {`"${quote}"`}
+        </p>
+        <p
+          className="text-xs text-muted/60 animate-fadeIn"
+          style={{ animationDelay: '1.2s' }}
+        >
+          click anywhere to skip
         </p>
       </div>
     </div>

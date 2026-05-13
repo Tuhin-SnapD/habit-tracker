@@ -34,6 +34,13 @@
       #1a1b2e 100%
     );
   }
+
+  /* Focus-visible ring for keyboard users */
+  *:focus-visible {
+    outline: 2px solid #6B5BD1;
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
 }
 
 @layer components {
@@ -62,11 +69,51 @@
     pointer-events: none;
     z-index: 0;
   }
+  html.dark .blob {
+    opacity: 0.15;
+    filter: blur(100px);
+  }
+
+  /* Dark mode form inputs */
+  html.dark input,
+  html.dark select,
+  html.dark textarea {
+    background-color: rgba(255, 255, 255, 0.08) !important;
+    border-color: rgba(255, 255, 255, 0.15) !important;
+    color: #ece7f4 !important;
+  }
+  html.dark input::placeholder,
+  html.dark textarea::placeholder {
+    color: rgba(236, 231, 244, 0.4);
+  }
+  html.dark input:focus,
+  html.dark select:focus,
+  html.dark textarea:focus {
+    border-color: #6B5BD1 !important;
+    box-shadow: 0 0 0 2px rgba(107, 91, 209, 0.3) !important;
+  }
+
+  /* Dark mode Recharts overrides */
+  html.dark .recharts-text {
+    fill: #a8a0b8 !important;
+  }
+  html.dark .recharts-cartesian-axis-line,
+  html.dark .recharts-cartesian-axis-tick-line {
+    stroke: rgba(255, 255, 255, 0.15) !important;
+  }
+  html.dark .recharts-default-tooltip {
+    background-color: #2a2440 !important;
+    border-color: rgba(255, 255, 255, 0.12) !important;
+    color: #ece7f4 !important;
+  }
 }
 
 @layer utilities {
   .text-shadow-soft {
     text-shadow: 0 1px 2px rgba(255, 255, 255, 0.6);
+  }
+  html.dark .text-shadow-soft {
+    text-shadow: none;
   }
   .scroll-area {
     scrollbar-width: thin;
