@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { useHabitStore } from '../store/useHabitStore';
 import { useFocusTrap } from '../hooks/useFocusTrap';
 import { toast } from './Toast';
@@ -104,9 +104,15 @@ export function Settings({ onClose }: Props) {
     }
   };
 
+  // Lock body scroll while modal is open
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = ''; };
+  }, []);
+
   return (
     <div
-      className="fixed inset-0 bg-ink/40 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fadeIn"
+      className="fixed inset-0 bg-ink/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fadeIn"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
@@ -115,7 +121,7 @@ export function Settings({ onClose }: Props) {
       <div
         ref={trapRef}
         onClick={(e) => e.stopPropagation()}
-        className="card w-full max-w-md p-6 space-y-5 shadow-soft animate-fadeUp max-h-[90vh] overflow-y-auto scroll-area"
+        className="modal-card w-full max-w-md p-6 space-y-5 shadow-soft animate-fadeUp max-h-[90vh] overflow-y-auto scroll-area"
         style={{ animationDuration: '0.3s' }}
       >
         <div className="flex items-center justify-between">

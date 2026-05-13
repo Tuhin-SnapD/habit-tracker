@@ -140,14 +140,14 @@ export function InsightsSection() {
             />
           </div>
 
-          <div className="grid lg:grid-cols-5 gap-4">
-            <div className="lg:col-span-3 card p-5">
-              <h3 className="display text-xl mb-3">
+          <div className="grid md:grid-cols-5 gap-4">
+            <div className="md:col-span-3 card p-4 sm:p-5">
+              <h3 className="display text-lg sm:text-xl mb-3">
                 Completions per habit
               </h3>
               <CompletionBar data={barData} max={windowDays} />
             </div>
-            <div className="lg:col-span-2 space-y-4">
+            <div className="md:col-span-2 space-y-4">
               <TopBottomList
                 title="Top performers"
                 entries={top}

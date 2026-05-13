@@ -80,21 +80,21 @@ export default function App() {
         <div className="blob bg-accent-blush top-2/3 -left-32 w-[26rem] h-[26rem] opacity-40" />
       </div>
 
-      <header className="relative px-6 pt-10 pb-8">
-        <div className="max-w-5xl mx-auto text-center space-y-3">
-          <p className="text-[11px] uppercase tracking-[0.28em] text-accent-purple font-medium">
+      <header className="relative px-4 sm:px-6 pt-8 sm:pt-10 pb-6 sm:pb-8">
+        <div className="max-w-5xl mx-auto text-center space-y-2 sm:space-y-3">
+          <p className="text-[10px] sm:text-[11px] uppercase tracking-[0.28em] text-accent-purple font-medium">
             {today}
           </p>
-          <h1 className="display text-5xl md:text-6xl leading-none">
+          <h1 className="display text-4xl sm:text-5xl md:text-6xl leading-none">
             Level<span className="italic text-accent-purple">Up</span>
           </h1>
-          <p className="display italic text-muted text-lg">
+          <p className="display italic text-muted text-base sm:text-lg">
             {userName ? `welcome back, ${userName}.` : 'systems over motivation.'}
           </p>
         </div>
         <button
           onClick={handleOpenSettings}
-          className="card absolute top-6 right-6 w-10 h-10 flex items-center justify-center text-muted hover:text-ink dark:hover:text-canvas transition"
+          className="card absolute top-4 sm:top-6 right-4 sm:right-6 w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center text-muted hover:text-ink dark:hover:text-canvas transition"
           aria-label="Settings"
           title="Settings (press S)"
         >
@@ -118,7 +118,7 @@ export default function App() {
           <InsightsSection />
         </div>
 
-        <footer className="text-center text-[11px] text-muted/70 mt-20 space-y-1">
+        <footer className="text-center text-[11px] text-muted/70 mt-20 space-y-1 hidden sm:block">
           <p>Shortcuts: 1–4 jump · ← → date · T today · N new · S settings</p>
           <p>{toDateKey()}</p>
         </footer>

@@ -99,12 +99,12 @@ export function WeekSection() {
             </p>
           </div>
 
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
             <div
-              className="min-w-fit grid gap-1.5 items-center"
+              className="min-w-fit grid gap-1 sm:gap-1.5 items-center"
               style={{
                 gridTemplateColumns:
-                  'minmax(180px, 1fr) repeat(7, 44px)',
+                  'minmax(120px, 1fr) repeat(7, minmax(36px, 44px))',
               }}
             >
               <div />
@@ -199,7 +199,7 @@ const WeekRow = memo(function WeekRow({
             }
             aria-pressed={done}
             title={future ? "Can't mark a future date" : undefined}
-            className={`h-10 w-10 rounded-xl text-sm flex items-center justify-center transition-all duration-200 border ${
+            className={`h-8 w-8 sm:h-10 sm:w-10 rounded-lg sm:rounded-xl text-xs sm:text-sm flex items-center justify-center transition-all duration-200 border ${
               done
                 ? 'text-white border-transparent shadow-card'
                 : future

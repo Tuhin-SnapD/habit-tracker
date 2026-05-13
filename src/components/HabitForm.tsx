@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react';
+import { useState, useEffect, type FormEvent } from 'react';
 import { useHabitStore, MAX_HABITS } from '../store/useHabitStore';
 import { CATEGORIES } from '../lib/categories';
 import { useFocusTrap } from '../hooks/useFocusTrap';
@@ -69,9 +69,15 @@ export function HabitForm({ editingId, onClose }: Props) {
     }
   };
 
+  // Lock body scroll while modal is open
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = ''; };
+  }, []);
+
   return (
     <div
-      className="fixed inset-0 bg-ink/40 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fadeIn"
+      className="fixed inset-0 bg-ink/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fadeIn"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
@@ -81,7 +87,7 @@ export function HabitForm({ editingId, onClose }: Props) {
         ref={trapRef}
         onClick={(e) => e.stopPropagation()}
         onSubmit={onSave}
-        className="card w-full max-w-md p-6 space-y-4 shadow-soft animate-fadeUp max-h-[90vh] overflow-y-auto scroll-area"
+        className="modal-card w-full max-w-md p-6 space-y-4 shadow-soft animate-fadeUp max-h-[90vh] overflow-y-auto scroll-area"
         style={{ animationDuration: '0.3s' }}
       >
         <div className="flex items-center justify-between">

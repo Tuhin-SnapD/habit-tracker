@@ -84,7 +84,7 @@ export function ConfirmDialog() {
 
   return (
     <div
-      className="fixed inset-0 bg-ink/40 backdrop-blur-sm flex items-center justify-center p-4 z-[300] animate-fadeIn"
+      className="fixed inset-0 bg-ink/50 backdrop-blur-sm flex items-center justify-center p-4 z-[300] animate-fadeIn"
       onClick={handleCancel}
       onKeyDown={handleKeyDown}
       role="dialog"
@@ -94,7 +94,7 @@ export function ConfirmDialog() {
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="card w-full max-w-sm p-6 space-y-4 shadow-soft animate-fadeUp"
+        className="modal-card w-full max-w-sm p-6 space-y-4 shadow-soft animate-fadeUp"
         style={{ animationDuration: '0.3s' }}
       >
         <h3

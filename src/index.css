@@ -53,9 +53,23 @@
     border-radius: 1rem;
   }
   html.dark .card {
-    background: rgba(255, 255, 255, 0.06);
-    border-color: rgba(255, 255, 255, 0.08);
-    box-shadow: 0 4px 20px -8px rgba(0, 0, 0, 0.4);
+    background: rgba(42, 36, 64, 0.85);
+    border-color: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 20px -8px rgba(0, 0, 0, 0.5);
+  }
+  /* Near-opaque modal variant for readability */
+  .modal-card {
+    background: rgba(251, 248, 244, 0.97);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    box-shadow: 0 8px 32px -12px rgba(31, 27, 45, 0.25);
+    border-radius: 1rem;
+  }
+  html.dark .modal-card {
+    background: rgba(36, 30, 56, 0.97);
+    border-color: rgba(255, 255, 255, 0.12);
+    box-shadow: 0 8px 32px -12px rgba(0, 0, 0, 0.6);
   }
   .display {
     font-family: 'Fraunces', 'Playfair Display', Georgia, serif;

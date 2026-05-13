@@ -7,7 +7,7 @@ type Props = {
 
 export function StatTile({ label, value, hint, accent }: Props) {
   return (
-    <div className="card relative p-5 overflow-hidden">
+    <div className="card relative p-4 sm:p-5 overflow-hidden">
       {accent && (
         <div
           className="absolute -top-6 -right-6 w-20 h-20 rounded-full opacity-30 blur-2xl"
@@ -15,10 +15,10 @@ export function StatTile({ label, value, hint, accent }: Props) {
         />
       )}
       <div className="relative">
-        <div className="text-[10px] text-muted uppercase tracking-[0.18em] font-medium">
+        <div className="text-[9px] sm:text-[10px] text-muted uppercase tracking-[0.18em] font-medium leading-tight">
           {label}
         </div>
-        <div className="display text-4xl mt-1">{value}</div>
+        <div className="display text-2xl sm:text-3xl md:text-4xl mt-1">{value}</div>
         {hint && <div className="text-xs text-muted mt-1">{hint}</div>}
       </div>
     </div>

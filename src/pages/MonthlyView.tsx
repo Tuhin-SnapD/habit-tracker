@@ -102,12 +102,12 @@ export function MonthSection() {
             </p>
           </div>
 
-          <div className="grid grid-cols-7 gap-1.5 text-center text-[10px] uppercase tracking-wider text-muted">
+          <div className="grid grid-cols-7 gap-1 sm:gap-1.5 text-center text-[9px] sm:text-[10px] uppercase tracking-wider text-muted">
             {labels.map((l) => (
               <div key={l}>{l}</div>
             ))}
           </div>
-          <div className="grid grid-cols-7 gap-1.5">
+          <div className="grid grid-cols-7 gap-1 sm:gap-1.5">
             {cells.map(({ date, inMonth }) => {
               const count = dayCounts[date] ?? 0;
               const pct = totalHabits > 0 ? count / totalHabits : 0;
@@ -127,7 +127,7 @@ export function MonthSection() {
                       ? `${date} — future date`
                       : `${date}: ${count}/${totalHabits} done`
                   }
-                  className={`aspect-square rounded-xl p-2 flex flex-col items-start justify-between text-left transition-all duration-200 ${
+                  className={`aspect-square rounded-lg sm:rounded-xl p-1 sm:p-2 flex flex-col items-start justify-between text-left transition-all duration-200 ${
                     !inMonth ? 'opacity-30' : ''
                   } ${
                     future
@@ -152,12 +152,12 @@ export function MonthSection() {
                       : `${date}: ${count}/${totalHabits} done`
                   }
                 >
-                  <div className="text-xs font-medium">
+                  <div className="text-[10px] sm:text-xs font-medium">
                     {format(fromKey(date), 'd')}
                   </div>
                   {inMonth && !future && count > 0 && (
                     <div
-                      className="text-[10px] self-end font-medium"
+                      className="text-[8px] sm:text-[10px] self-end font-medium hidden xs:block"
                       style={{ color: pct > 0.5 ? 'white' : '#1F1B2D' }}
                     >
                       {count}/{totalHabits}
