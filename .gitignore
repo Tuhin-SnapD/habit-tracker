@@ -1,0 +1,15 @@
+node_modules
+dist
+.vite
+.DS_Store
+*.local
+
+# Editor / tooling
+.claude/
+
+# Tauri build output
+src-tauri/target
+src-tauri/gen
+
+# Reference assets (kept locally, not in repo)
+screencapture-*.png
