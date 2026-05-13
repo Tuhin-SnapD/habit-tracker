@@ -6,10 +6,34 @@ dist
 
 # Editor / tooling
 .claude/
+.gemini/
+.vscode/
+*.swp
+*.swo
+*~
+
+# TypeScript build info (generated)
+tsconfig.tsbuildinfo
+tsconfig.node.tsbuildinfo
+vite.config.d.ts
+vite.config.js
 
 # Tauri build output
 src-tauri/target
 src-tauri/gen
+src-tauri/Cargo.lock
+
+# OS files
+Thumbs.db
+Desktop.ini
+.Spotlight-V100
+.Trashes
 
 # Reference assets (kept locally, not in repo)
 screencapture-*.png
+app-icon.png
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
